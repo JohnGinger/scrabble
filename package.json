@@ -1,0 +1,26 @@
+{
+  "name": "scrabble-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "deploy": "yarn build && firebase deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^7.14.2",
+    "intro": "^1.0.0",
+    "parcel-bundler": "^1.12.4",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "react-use": "^14.2.0",
+    "reset-css": "^5.0.1",
+    "utils": "^0.3.1"
+  },
+  "devDependencies": {
+    "sass": "^1.26.5"
+  }
+}

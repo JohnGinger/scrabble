@@ -1,0 +1,98 @@
+game-container {
+  game-title {
+    background-color: lightgrey;
+    font-variant: small-caps;
+    padding: 5px;
+    width: 100%;
+    display: block;
+    margin-bottom: 1em;
+  }
+  players-list {
+    display: flex;
+    flex-flow: column;
+    background: white;
+    max-width: 360px;
+    margin: 100px auto 16px;
+    padding: 32px 24px;
+    border-radius: 3px;
+
+    player-name {
+      font-size: 1.5em;
+      display: block;
+      padding: 1.2em;
+    }
+  }
+  board-container {
+    padding-left: 8px;
+
+    display: block;
+    board-row {
+      display: flex;
+      game-square {
+        display: block;
+        border: 1px solid black;
+
+        &.center {
+          background-color: #f69;
+        }
+
+        &.double-word {
+          background-color: #f69;
+        }
+
+        &.triple-word {
+          background-color: red;
+        }
+
+        &.double-letter {
+          background-color: #0cf;
+        }
+
+        &.triple-letter {
+          background-color: #009;
+        }
+
+        input {
+          width: 26px;
+          height: 26px;
+          text-align: center;
+          padding: 0;
+          margin-top: 2px;
+          margin-left: 2px;
+          font-size: 18px;
+          line-height: 26px;
+          border: 0 solid transparent;
+          background: transparent;
+        }
+      }
+    }
+  }
+}
+
+tile-container {
+  background-color: white;
+  border: 1px solid #979797;
+  border-radius: 5px;
+  margin: 1px;
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  tile-score {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.5em;
+  }
+}
+
+tile-board {
+  padding: 1em;
+  display: block;
+  list-of-tiles {
+    display: flex;
+  }
+}
