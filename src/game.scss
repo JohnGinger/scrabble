@@ -31,25 +31,71 @@ game-container {
       game-square {
         display: block;
         border: 1px solid black;
+        background-color: #00800069;
+
+        &:before {
+          display: none;
+          position: absolute;
+          left: 0;
+          display: flex;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          justify-content: center;
+          align-items: center;
+          line-height: 25px;
+          bottom: 0;
+          color: black;
+          opacity: 0.3;
+          font-size: 0.8em;
+        }
 
         &.center {
-          background-color: #f69;
+          background-color: #ff669991;
+          position: relative;
+          &:before {
+            content: "*";
+            display: flex;
+            font-size: 50px;
+            top: 14px;
+          }
         }
 
         &.double-word {
-          background-color: #f69;
+          background-color: #ff669991;
+          position: relative;
+          &:before {
+            content: "DW";
+            display: flex;
+          }
         }
 
         &.triple-word {
-          background-color: red;
+          background-color: #ff000091;
+          position: relative;
+          &:before {
+            content: "TW";
+            display: flex;
+          }
         }
 
         &.double-letter {
-          background-color: #0cf;
+          background-color: #00ccff6e;
+          position: relative;
+          &:before {
+            content: "DL";
+            display: flex;
+          }
         }
 
         &.triple-letter {
-          background-color: #009;
+          background-color: #0000998a;
+          position: relative;
+          &:before {
+            content: "TL";
+            display: flex;
+          }
         }
 
         input {
@@ -63,6 +109,13 @@ game-container {
           line-height: 26px;
           border: 0 solid transparent;
           background: transparent;
+          z-index: 2;
+          position: relative;
+
+          &.filled {
+            background-color: #ffffffa1;
+            margin: 1px;
+          }
         }
       }
     }

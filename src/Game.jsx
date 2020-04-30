@@ -167,6 +167,7 @@ const GameSquare = ({ letter, x, y, tiles, setTile, isTilePlacedBefore }) => {
       <game-square class={getTileClass({ x, y })}>
         <input
           value={tileOnSquare.letter}
+          class={tileOnSquare.letter != "" && "filled"}
           onChange={(e) => setTile({ x, y, letter: e.target.value })}
         ></input>
       </game-square>
@@ -255,4 +256,14 @@ const SPECIAL_TILES = {
   "5-5": "double-word",
   "6-6": "double-word",
   "7-7": "triple-word",
+  "0-4": "double-letter",
+  "0-7": "triple-word",
+  "1-5": "double-letter",
+  "2-6": "triple-letter",
+  "4-7": "double-letter",
+  "7-4": "double-letter",
+  "6-2": "triple-letter",
+  "5-1": "double-letter",
+  "7-0": "triple-word",
+  "4-0": "double-letter",
 };
