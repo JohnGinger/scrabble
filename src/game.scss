@@ -113,7 +113,7 @@ game-container {
           position: relative;
 
           &.filled {
-            background-color: #ffffffa1;
+            background-color: #ffffff73;
             margin: 1px;
           }
         }
@@ -129,6 +129,12 @@ tile-container {
   margin: 1px;
   width: 24px;
   height: 24px;
+  &.active {
+    background-color: #ffffff73;
+    margin: 0px;
+    padding: 1px;
+    border-radius: 0;
+  }
 
   display: flex;
   justify-content: center;
@@ -147,5 +153,18 @@ tile-board {
   display: block;
   list-of-tiles {
     display: flex;
+  }
+}
+
+scores-container {
+  padding: 1em;
+  player-container {
+    border-bottom: 1px solid gray;
+    padding: 8px;
+    display: flex;
+    max-width: 400px;
+    player-name {
+      flex: 1 1 auto;
+    }
   }
 }

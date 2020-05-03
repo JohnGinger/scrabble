@@ -12,12 +12,13 @@ const Lobby = ({ gameState, gameRef }) => {
         lettersRemovedFromBag,
         lettersRemovedFromBag + 7
       );
+      players[playerId].score = 0;
       lettersRemovedFromBag += 7;
     }
 
     gameRef.update({
       active: true,
-      letters: getLetters(),
+      letters: gameLetters,
       lettersRemovedFromBag,
       playerOrder,
       players,

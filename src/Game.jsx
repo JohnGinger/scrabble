@@ -1,4 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { SPECIAL_TILES, getSpecialTileLocation } from "./constants";
+import scoreMove from "./scoreMove";
 
 const getValidTiles = ({ players, tilesBeingUsed, name }) => {
   console.log("calculating valid tiles");
@@ -10,7 +13,7 @@ const getValidTiles = ({ players, tilesBeingUsed, name }) => {
   if (!player) {
     return [];
   }
-  let validTiles = player.tiles;
+  let validTiles = player.tiles || [];
 
   for (let usedTile of tilesBeingUsed) {
     const index = validTiles.findIndex(
@@ -30,6 +33,49 @@ const Game = ({ gameState, gameRef, name }) => {
 
   const [tilesBeingUsed, setTilesBeingUsed] = useState([]);
   const [validTiles, setValidTiles] = useState([]);
+  const [askedToRun, setAskedToRun] = useState(false);
+  let timeoutRef;
+
+  useEffect(() => {
+    if (gameState.challenged && gameState.challenged != "") {
+      console.log("challenged!");
+      setAskedToRun(false);
+      setTimeout(() => {
+        gameRef.update({
+          challenged: "",
+        });
+      }, 2000);
+      clearTimeout(timeoutRef);
+    }
+  }, [gameState]);
+
+  useEffect(() => {
+    if (askedToRun) {
+      console.log("ask for challenge");
+
+      timeoutRef = setTimeout(() => {
+        console.log("end turn");
+
+        gameRef.update({
+          askForChallenge: false,
+        });
+        endTurn({
+          tilesBeingUsed,
+          setTilesBeingUsed,
+          validTiles,
+          gameRef,
+          gameState,
+          currentPlayerId,
+        });
+        setAskedToRun(false);
+      }, 5000);
+      gameRef.update({
+        askForChallenge: true,
+        challenged: "",
+      });
+    }
+    return () => clearTimeout(timeoutRef);
+  }, [askedToRun]);
 
   useEffect(() => {
     const validTiles = getValidTiles({
@@ -106,7 +152,9 @@ const Game = ({ gameState, gameRef, name }) => {
 
   const updateGameStateTile = ({ x, y, tile }) => {
     const newTiles = gameState.tiles;
-    newTiles[x][y] = tile;
+    console.log("here");
+    newTiles[x][y] = { ...tile, active: true };
+    console.log(newTiles[x][y]);
     gameRef.update({
       tiles: newTiles,
     });
@@ -122,6 +170,7 @@ const Game = ({ gameState, gameRef, name }) => {
         {gameState.letters.length - gameState.lettersRemovedFromBag} letters
         remaining
       </h2>
+      <h2>{gameState.challenged && `Challenged by ${gameState.challenged}`}</h2>
       {new Array(15).fill("").map((_, y) => (
         <BoardRow
           y={y}
@@ -139,50 +188,76 @@ const Game = ({ gameState, gameRef, name }) => {
           ))}
         </list-of-tiles>
       </tile-board>
-      {yourTurn && (
-        <button
-          onClick={() =>
-            endTurn({
-              tilesBeingUsed,
-              setTilesBeingUsed,
-              validTiles,
-              gameRef,
-              gameState,
-              currentPlayerId,
-            })
-          }
-        >
-          End Turn
-        </button>
+      {yourTurn && !askedToRun && (
+        <button onClick={() => setAskedToRun(true)}>End Turn</button>
       )}
+      {!yourTurn && gameState.askForChallenge && (
+        <>
+          <button
+            onClick={() =>
+              gameRef.update({
+                askForChallenge: false,
+                challenged: name,
+              })
+            }
+          >
+            Challenge!{" "}
+            <CountdownCircleTimer
+              isPlaying={true}
+              duration={5}
+              colors={[["#004777", 0.33], ["#F7B801", 0.33], ["#A30000"]]}
+            >
+              {({ remainingTime }) => remainingTime}
+            </CountdownCircleTimer>
+          </button>
+        </>
+      )}
+      {/* TODO <Scores players={gameState.players} /> */}
     </board-container>
   );
 };
 export default Game;
 
-const GameSquare = ({ letter, x, y, tiles, setTile, isTilePlacedBefore }) => {
+const Scores = ({ players }) => {
+  return (
+    <scores-container>
+      <h1>Player Scores</h1>
+      {Object.values(players).map((player) => (
+        <player-container key={player.name}>
+          <player-name>{player.name}</player-name>
+          <player-score>{player.score}</player-score>
+        </player-container>
+      ))}
+    </scores-container>
+  );
+};
+
+const GameSquare = ({ x, y, tiles, setTile, isTilePlacedBefore }) => {
   const tileOnSquare = tiles[x][y];
   if (!isTilePlacedBefore({ x, y }) || tileOnSquare.letter == "") {
     return (
       <game-square class={getTileClass({ x, y })}>
         <input
           value={tileOnSquare.letter}
-          class={tileOnSquare.letter != "" && "filled"}
+          className={tileOnSquare.letter != "" ? "filled" : ""}
           onChange={(e) => setTile({ x, y, letter: e.target.value })}
         ></input>
       </game-square>
     );
   } else {
     return (
-      <game-square>
-        <Tile letter={tileOnSquare} />
+      <game-square class={getTileClass({ x, y })}>
+        <Tile
+          letter={tileOnSquare}
+          className={tileOnSquare.active ? "active" : ""}
+        />
       </game-square>
     );
   }
 };
 
 const getTileClass = ({ x, y }) => {
-  const location = `${Math.abs(x - 7)}-${Math.abs(y - 7)}`;
+  const location = getSpecialTileLocation({ x, y });
   if (SPECIAL_TILES[location]) {
     return SPECIAL_TILES[location];
   }
@@ -206,9 +281,9 @@ const BoardRow = ({ y, tiles, setTile, isTilePlacedBefore }) => {
   );
 };
 
-const Tile = ({ letter }) => {
+const Tile = ({ letter, className }) => {
   return (
-    <tile-container>
+    <tile-container class={className}>
       <tile-letter>{letter.letter}</tile-letter>
       <tile-score>{letter.score}</tile-score>
     </tile-container>
@@ -231,6 +306,8 @@ const endTurn = ({
   }
 
   let lettersRemovedFromBag = gameState.lettersRemovedFromBag;
+  const lettersRemaining = 100 - lettersRemovedFromBag;
+  numNewTiles = Math.min(lettersRemaining, numNewTiles);
   const newTiles = gameState.letters.slice(
     lettersRemovedFromBag,
     lettersRemovedFromBag + numNewTiles
@@ -239,31 +316,20 @@ const endTurn = ({
   let players = gameState.players;
 
   players[currentPlayerId].tiles = [...validTiles, ...newTiles];
+
+  // TODO add scoring
+  // players[currentPlayerId].score += scoreMove({
+  //   tilesBeingUsed,
+  //   tiles: gameState.tiles,
+  // });
   setTilesBeingUsed([]);
+  const boardTiles = gameState.tiles.map((row) =>
+    row.map((tile) => ({ ...tile, active: false }))
+  );
   gameRef.update({
     currentPlayer: (gameState.currentPlayer + 1) % gameState.playerOrder.length,
     lettersRemovedFromBag,
+    tiles: boardTiles,
     players,
   });
-};
-
-const SPECIAL_TILES = {
-  "0-0": "center",
-  "1-1": "double-letter",
-  "2-2": "triple-letter",
-  "3-3": "double-word",
-  "4-4": "double-word",
-  "5-5": "double-word",
-  "6-6": "double-word",
-  "7-7": "triple-word",
-  "0-4": "double-letter",
-  "0-7": "triple-word",
-  "1-5": "double-letter",
-  "2-6": "triple-letter",
-  "4-7": "double-letter",
-  "7-4": "double-letter",
-  "6-2": "triple-letter",
-  "5-1": "double-letter",
-  "7-0": "triple-word",
-  "4-0": "double-letter",
 };
